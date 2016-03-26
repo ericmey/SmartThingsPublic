@@ -13,54 +13,70 @@
  *  for the specific language governing permissions and limitations under the License.
  *
  */
+
 metadata {
-	definition (name: "MyQ Remote Light", namespace: "ericmey", author: "Eric Mey") {
-		capability "Actuator"
-		capability "Polling"
-		capability "Refresh"
-		capability "Sensor"
-		capability "Switch"
+  definition (name: "MyQ Remote Light", namespace: "ericmey", author: "Eric Mey") {
+    capability "Actuator"
+    capability "Polling"
+    capability "Refresh"
+    capability "Sensor"
+    capability "Switch"
 
-		command "deviceUpdateStatus"
-	}
+    command "deviceUpdateStatus"
+  }
 
-	simulator {
-	}
+  simulator {
+  }
 
-	tiles {
-		// TODO: define your main and details tiles here
-	}
-}
+  tiles {
+    standardTile("switch", "device.switch", width: 2, height: 2, canChangeIcon: true) {
+      state("off", label: 'Off', action: "switch.on", icon: "st.switches.switch.off", backgroundColor: "#ffffff", nextState: "on")
+      state("on", label: 'On', action: "switch.off", icon: "st.switches.switch.on", backgroundColor: "#79b821", nextState: "off")
+    }
 
-// parse events into attributes
-def parse(String description) {
-	log.debug "Parsing '${description}'"
-	// TODO: handle 'switch' attribute
+    standardTile("refresh", "device.switch", inactiveLabel: false, decoration: "flat") {
+      state("default", label: '', action: "refresh.refresh", icon: "st.secondary.refresh")
+    }
 
-}
+    main "switch"
 
-// handle commands
-def poll() {
-	log.debug "Executing 'poll'"
-	// TODO: handle 'poll' command
-}
-
-def refresh() {
-	log.debug "Executing 'refresh'"
-	// TODO: handle 'refresh' command
-}
-
-def on() {
-	log.debug "Executing 'on'"
-	// TODO: handle 'on' command
+    details(["switch", "refresh"])
+  }
 }
 
 def off() {
-	log.debug "Executing 'off'"
-	// TODO: handle 'off' command
+  log.debug "Executing 'off'"
+  parent.sendCommand(this, "desiredlightstate", 0)
+  updateDeviceStatus(0)
+}
+
+def on() {
+  log.debug "Executing 'on'"
+  parent.sendCommand(this, "desiredlightstate", 1)
+  updateDeviceStatus(1)
+}
+
+def parse(String description) {
+}
+
+def poll() {
+  log.debug "Executing 'poll'"
+  deviceUpdateStatus(parent.deviceStatus(this))
+}
+
+def refresh() {
+  log.debug "Executing 'refresh'"
+  parent.refresh()
 }
 
 def deviceUpdateStatus() {
-	log.debug "Executing 'deviceUpdateStatus'"
-	// TODO: handle 'deviceUpdateStatus' command
+  log.debug "Executing 'deviceUpdateStatus'"
+
+  if (status == "0") {
+    sendEvent(name: "switch", value: "off", display: true, descriptionText: device.displayName + " was off")
+  }
+
+  if (status == "1") {
+    sendEvent(name: "switch", value: "on", display: true, descriptionText: device.displayName + " was on")
+  }
 }
