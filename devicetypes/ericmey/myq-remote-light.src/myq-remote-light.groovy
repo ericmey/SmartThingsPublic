@@ -46,12 +46,14 @@ metadata {
 
 def off() {
   log.debug "Executing 'off'"
+
   parent.sendCommand(this, "desiredlightstate", 0)
   updateDeviceStatus(0)
 }
 
 def on() {
   log.debug "Executing 'on'"
+
   parent.sendCommand(this, "desiredlightstate", 1)
   updateDeviceStatus(1)
 }
@@ -61,11 +63,13 @@ def parse(String description) {
 
 def poll() {
   log.debug "Executing 'poll'"
+
   deviceUpdateStatus(parent.deviceStatus(this))
 }
 
 def refresh() {
   log.debug "Executing 'refresh'"
+
   parent.refresh()
 }
 
